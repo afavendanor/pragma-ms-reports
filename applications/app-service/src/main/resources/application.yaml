@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: pragma-ms-reports
+  profiles:
+    include: sqs, dynamo
+
+logging:
+  level:
+    co.com.pragma: DEBUG
+
+server:
+  port: 8083
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: swagger-ui.html
+

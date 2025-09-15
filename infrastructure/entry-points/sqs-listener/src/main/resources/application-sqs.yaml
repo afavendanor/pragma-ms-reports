@@ -1,0 +1,4 @@
+listener:
+  sqs:
+    region: ${AWS_REGION:us-east-1}
+    queueUrl: ${AWS_APPROVED_QUEUE:https://sqs.us-east-1.amazonaws.com/666734176386/loan-app-approved-queue}
