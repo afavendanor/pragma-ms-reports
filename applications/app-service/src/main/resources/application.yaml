@@ -1,6 +1,8 @@
 spring:
   application:
     name: pragma-ms-reports
+  webflux:
+    base-path: /reports
   profiles:
     include: sqs, dynamo
 
@@ -10,6 +12,8 @@ logging:
 
 server:
   port: 8083
+  servlet:
+    context-path: /reports
 
 springdoc:
   api-docs:
