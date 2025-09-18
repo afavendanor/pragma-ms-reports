@@ -1,0 +1,66 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set IMAGE_TAG
+        run: echo "IMAGE_TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+
+      - name: Build, Tag, and Push Docker image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        run: |
+          # Build con SHA
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
+          docker push $REGISTRY/$REPOSITORY:latest
+
+      # - name: Deploy CloudFormation Stack
+      #   id: deploy
+      #   run: |
+      #     set -e
+      #     aws cloudformation deploy \
+      #       --template-file infra/stack.yml \
+      #       --stack-name microservices-stack \
+      #       --capabilities CAPABILITY_NAMED_IAM \
+      #       --parameter-overrides \
+      #         ReportsImageTag=$IMAGE_TAG
+
+      # - name: Check deployment status & rollback if needed
+      #   if: always()
+      #   run: |
+      #     STATUS=$(aws cloudformation describe-stacks \
+      #       --stack-name microservices-stack \
+      #       --query "Stacks[0].StackStatus" \
+      #       --output text)
+
+      #     echo "Stack status: $STATUS"
+
+      #     if [[ "$STATUS" == *ROLLBACK* || "$STATUS" == *FAILED* ]]; then
+      #       echo "Deployment failed, forcing rollback..."
+      #       aws cloudformation rollback-stack --stack-name microservices-stack || true
+      #       exit 1
+      #     fi

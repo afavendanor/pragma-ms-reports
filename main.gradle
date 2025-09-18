@@ -16,12 +16,14 @@ subprojects {
 
     compileJava.dependsOn validateStructure
 
+    if (project.name == 'app-service') {
+        apply plugin: 'org.springframework.boot'
+    }
+
     java {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-
-    //build.dependsOn 'pitest'
 
     test {
         useJUnitPlatform()
@@ -65,23 +67,22 @@ subprojects {
         exportLineCoverage = true
         useClasspathFile = true
         timestampedReports = false
-        //mutators = ['STRONGER', 'DEFAULTS']
         fileExtensionsToFilter.addAll('xml', 'orbit')
         junit5PluginVersion = '1.2.2'
         failWhenNoMutations = false
         jvmArgs = ["-XX:+AllowRedefinitionToAddDeleteMethods"]
     }
 
+    // JaCoCo report per subproject
     jacocoTestReport {
-        dependsOn test, 'pitest'
+        dependsOn test
         reports {
-            xml.setRequired true
-            xml.setOutputLocation layout.buildDirectory.file("reports/jacoco.xml")
-            csv.setRequired false
-            html.setOutputLocation layout.buildDirectory.dir("reports/jacocoHtml")
+            xml.required.set(true)
+            xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco.xml"))
+            csv.required.set(false)
+            html.outputLocation.set(layout.buildDirectory.dir("reports/jacocoHtml"))
         }
     }
-
 }
 
 jacoco {
@@ -89,16 +90,64 @@ jacoco {
     reportsDirectory.set(layout.buildDirectory.dir("reports"))
 }
 
-tasks.register('jacocoMergedReport', JacocoReport) {
-    dependsOn = [test, subprojects.jacocoTestReport, pitestReportAggregate]
-    additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories.setFrom files(subprojects.sourceSets.main.output)
-    executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
+task jacocoMergedReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+
+    additionalSourceDirs.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories.from = files(subprojects.sourceSets.main.output)
+
+    executionData.from = files(subprojects.jacocoTestReport.executionData).filter { it.exists() }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect { directory ->
+            fileTree(dir: directory, exclude: [
+                    "**/*MainApplication.class/**",
+                    "**/model/**",
+                    "**/entity/**", "**/*Entity.class", "**/*Repository.class",
+                    "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
+                    "**/security/**",  "**/*Config.class",
+                    "**/metrics/**"
+            ])
+        }))
+    }
+
     reports {
-        xml.setRequired true
-        csv.setRequired false
-        html.setRequired true
+        xml.required.set(true)
+        xml.destination file("${buildDir}/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml")
+        html.required.set(true)
+        html.outputLocation = file("${buildDir}/reports/jacoco/jacocoMergedReport")
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoMergedReport
+
+    additionalSourceDirs.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories.from = files(subprojects.sourceSets.main.output)
+
+    executionData.from = jacocoMergedReport.executionData
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect { directory ->
+            fileTree(dir: directory, exclude: [
+                    "**/*MainApplication.class/**",
+                    "**/model/**",
+                    "**/entity/**", "**/*Entity.class", "**/*Repository.class",
+                    "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
+                    "**/security/**",  "**/*Config.class",
+                    "**/metrics/**"
+            ])
+        }))
+    }
+
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.90
+            }
+        }
     }
 }
 
