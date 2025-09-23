@@ -8,7 +8,7 @@ spring:
 
 logging:
   level:
-    co.com.pragma: WARN
+    co.com.pragma: INFO
 
 server:
   port: 8083
