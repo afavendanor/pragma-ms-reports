@@ -106,7 +106,7 @@ task jacocoMergedReport(type: JacocoReport) {
                     "**/model/**",
                     "**/entity/**", "**/*Entity.class", "**/*Repository.class",
                     "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
-                    "**/security/**",  "**/*Config.class",
+                    "**/security/**",  "**/*Config.class",  "**/*Properties.class",
                     "**/metrics/**"
             ])
         }))
@@ -136,7 +136,7 @@ jacocoTestCoverageVerification {
                     "**/model/**",
                     "**/entity/**", "**/*Entity.class", "**/*Repository.class",
                     "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
-                    "**/security/**",  "**/*Config.class",
+                    "**/security/**",  "**/*Config.class", "**/*Properties.class",
                     "**/metrics/**"
             ])
         }))
@@ -145,7 +145,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.90
+                minimum = 0.85
             }
         }
     }

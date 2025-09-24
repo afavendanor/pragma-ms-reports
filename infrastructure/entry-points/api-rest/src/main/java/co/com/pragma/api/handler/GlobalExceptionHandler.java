@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
 
         GenericResponseDTO<Map<String, String>> respuesta = new GenericResponseDTO<>(
                 HttpStatus.BAD_REQUEST.value(),
-                ResponseCode.MSSO002.getMessage(),
+                ResponseCode.MRPO002.getMessage(),
                 null,
                 fieldErrors
         );
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 
         GenericResponseDTO<Map<String, String>> respuesta = new GenericResponseDTO<>(
                 HttpStatus.BAD_REQUEST.value(),
-                ResponseCode.MSSO002.getMessage(),
+                ResponseCode.MRPO002.getMessage(),
                 null,
                 fieldErrors
         );
@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> handleException(Exception ex) {
         GenericResponseDTO<Map<String, String>> respuesta = new GenericResponseDTO<>(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ResponseCode.MSSO000.getMessage(),
+                ResponseCode.MRPO000.getMessage(),
                 null,
                 List.of()
         );

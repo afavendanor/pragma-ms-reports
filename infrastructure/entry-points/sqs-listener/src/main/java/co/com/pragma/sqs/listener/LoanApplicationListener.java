@@ -49,7 +49,7 @@ public class LoanApplicationListener {
                 .subscribe();
     }
 
-    private Mono<Void> delegateToHandler(Message message) {
+    Mono<Void> delegateToHandler(Message message) {
         try {
             SnsEnvelopeDTO envelope = objectMapper.readValue(message.body(), SnsEnvelopeDTO.class);
             String innerMessage = envelope.getMessage();
@@ -61,7 +61,7 @@ public class LoanApplicationListener {
         }
     }
 
-    private Mono<Void> deleteMessage(Message message) {
+    Mono<Void> deleteMessage(Message message) {
         return Mono.fromFuture(() ->
                         sqsClient.deleteMessage(b -> b.queueUrl(properties.queueUrl())
                                 .receiptHandle(message.receiptHandle())))

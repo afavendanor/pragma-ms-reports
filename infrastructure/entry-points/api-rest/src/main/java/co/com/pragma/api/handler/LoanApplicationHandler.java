@@ -29,7 +29,7 @@ public class LoanApplicationHandler {
                     log.debug("Inicializar consulta de resumen");
                     return obtainSumaryApplicationUseCase.execute()
                             .map(loanApplicationApiRestMapper::loanStatsToLoanStatsDTO)
-                            .map(dto -> new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, dto))
+                            .map(dto -> new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MRPO001, dto))
                             .doOnSuccess(response -> log.debug("Finalizar consulta de resumen"));
                 }),
                 "obtainSummary");

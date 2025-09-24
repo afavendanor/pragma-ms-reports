@@ -1,10 +1,14 @@
 package co.com.pragma.config;
 
+import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.pragma.model.loan_application.LoanApplication;
+import co.com.pragma.model.loan_application.LoanStats;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import reactor.core.publisher.Mono;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UseCasesConfigTest {
@@ -22,13 +26,28 @@ class UseCasesConfigTest {
                 }
             }
 
-            assertTrue(useCaseBeanFound, "No beans ending with 'Use Case' were found");
+            assertTrue(useCaseBeanFound, "No beans ending with 'UseCase' were found");
         }
     }
 
     @Configuration
     @Import(UseCasesConfig.class)
     static class TestConfig {
+
+        @Bean
+        public LoanApplicationRepository loanApplicationRepository() {
+            return new LoanApplicationRepository() {
+                @Override
+                public Mono<Void> save(LoanApplication loanApplication) {
+                    return Mono.empty();
+                }
+
+                @Override
+                public Mono<LoanStats> getBySummary() {
+                    return Mono.just(new LoanStats(0, 0.0));
+                }
+            };
+        }
 
         @Bean
         public MyUseCase myUseCase() {

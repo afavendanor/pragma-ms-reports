@@ -25,7 +25,7 @@ public class HealthCheckController {
             @ApiResponse(responseCode = "200", description = "El servicio está funcionando correctamente.")
     })
     public Mono<ResponseEntity<GenericResponseDTO<String>>> healthCheck() {
-        return Mono.just(ResponseEntity.ok(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, "Service is up and running")));
+        return Mono.just(ResponseEntity.ok(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MRPO001, "Service is up and running")));
 
     }
 }
